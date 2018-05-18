@@ -17,7 +17,7 @@ defmodule CandidateWebsite.RequirePlug do
     animation_fill_level target_html hero_text_color before_for_congress
     why_support_picture instagram google_analytics_id linkedin hide_lets
     action_network_api_key google_tag_manager_id google_optimize_id volunteer_options
-    master privacy_policy
+    master privacy_policy join_button_color state_logo
   )
 
   @about_attrs ~w(
@@ -30,7 +30,8 @@ defmodule CandidateWebsite.RequirePlug do
   def call(conn, _opts) do
     params = conn |> fetch_query_params() |> Map.get(:params)
     global_opts = GlobalOpts.get(conn, params)
-    candidate = Keyword.get(global_opts, :candidate)
+    # candidate = Keyword.get(global_opts, :candidate)
+    candidate = "alexandria-ocasio-cortez-staging"
 
     %{"metadata" => metadata} = Cosmic.get("homepage-en", candidate)
 
@@ -68,10 +69,15 @@ defmodule CandidateWebsite.RequirePlug do
 
     issues =
       Cosmic.get_type("issues", candidate)
-      |> Enum.map(fn %{"title" => title, "metadata" => metadata = ~m(header intro priority)} ->
-        full = metadata["full"]
+      |> Enum.map(fn %{
+                       "title" => title,
+                       "metadata" => metadata = ~m(header intro priority show_on_homepage)
+                     } ->
         priority = as_float(priority)
-        ~m(title header intro priority full)a
+        full = metadata["full"] || intro
+        icon = metadata["icon"] || %{}
+        show_on_homepage = show_on_homepage == "Show"
+        ~m(title header intro priority full show_on_homepage icon)a
       end)
       |> Enum.sort(&by_priority/2)
 
@@ -102,8 +108,7 @@ defmodule CandidateWebsite.RequirePlug do
     case Enum.filter(@required, &(not field_filled(metadata, &1))) do
       [] ->
         required_data =
-          Enum.reduce(@required, ~m(candidate about issues mobile articles events)a, fn key,
-                                                                                        acc ->
+          Enum.reduce(@required, ~m(candidate about issues mobile articles events)a, fn key, acc ->
             Map.put(acc, String.to_atom(key), metadata[key])
           end)
 

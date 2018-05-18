@@ -15,13 +15,7 @@ config :logger, :console,
 # Cosmic
 config :cosmic,
   slugs: [
-    "alexandria-ocasio-cortez",
-    "adrienne-bell",
-    "anthony-clark",
-    "chardo-richardson",
-    "cori-bush",
-    "paula-jean-swearengin",
-    "marc-whitmire"
+    "alexandria-ocasio-cortez-staging"
   ]
 
 # Domains
@@ -29,17 +23,7 @@ config :candidate_website,
   domains: %{
     "ocasio2018.com" => "alexandria-ocasio-cortez",
     "www.ocasio2018.com" => "alexandria-ocasio-cortez",
-    "bell2018.com" => "adrienne-bell",
-    "www.bell2018.com" => "adrienne-bell",
-    "whitmire2018.com" => "marc-whitmire",
-    "www.whitmire2018.com" => "marc-whitmire",
-    "anthonyclark2018.com" => "anthony-clark",
-    "paulajean2018.com" => "paula-jean-swearengin",
-    "www.paulajean2018.com" => "paula-jean-swearengin",
-    "votecoribush.com" => "cori-bush",
-    "www.votecoribush.com" => "cori-bush",
-    "www.chardo2018.com" => "chardo-richardson",
-    "chardo2018.com" => "chardo-richardson"
+    "staging.ocasio2018.com" => "alexandria-ocasio-cortez"
   }
 
 config :candidate_website, CandidateWebsite.Scheduler,

@@ -23,6 +23,16 @@ defmodule CandidateWebsite.PageController do
     render(conn, "platform.html", Enum.into(assigns, []))
   end
 
+  def press(conn, _params) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "news.html", Enum.into(assigns, []))
+  end
+
+  def endorsements(conn, _params) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "endorsements.html", Enum.into(assigns, []))
+  end
+
   def signup(conn, params) do
     data = %{name: candidate_name, donate_url: donate_url} = Map.get(conn.assigns, :data)
     ~m(email zip name) = params
