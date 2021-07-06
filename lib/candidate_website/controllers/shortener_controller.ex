@@ -3,11 +3,13 @@ defmodule CandidateWebsite.ShortenerController do
   use CandidateWebsite, :controller
 
   def index(conn = %{request_path: path}, params) do
-    global_opts = GlobalOpts.get(conn, params)
-    candidate = Keyword.get(global_opts, :candidate)
+    # global_opts = GlobalOpts.get(conn, params)
+    # candidate = Keyword.get(global_opts, :candidate)
+    candidate = "alexandria-ocasio-cortez-staging"
 
     route =
       Cosmic.get_type("shortlinks", candidate)
+      |> Enum.filter(fn %{"metadata" => object} -> match?(~m(from to), object) end)
       |> Enum.map(fn %{"metadata" => ~m(from to)} -> ~m(from to)a end)
 
     path = String.downcase(path)
@@ -24,7 +26,20 @@ defmodule CandidateWebsite.ShortenerController do
         {_, destination} -> destination
       end
 
-    redirect(conn, external: https_prefix(destination))
+    [url, existing_query] =
+      case String.split(destination, "?") do
+        [url, existing_query] -> [url, existing_query]
+        [url] -> [url, ""]
+      end
+
+    query =
+      existing_query
+      |> URI.decode_query()
+      |> Map.merge(params)
+      |> Map.drop(~w(path))
+      |> URI.encode_query()
+
+    redirect(conn, external: https_prefix(url <> "?" <> query))
   end
 
   defp matches({regex, _destination}, path) do

@@ -11,6 +11,7 @@ defmodule CandidateWebsite.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug(CORSPlug)
   end
 
   scope "/api", CandidateWebsite do
@@ -18,6 +19,7 @@ defmodule CandidateWebsite.Router do
 
     get("/update/cosmic", UpdateController, :get_cosmic)
     post("/update/cosmic", UpdateController, :post_cosmic)
+    get("/events", UpdateController, :get_events)
   end
 
   scope "/", CandidateWebsite do
@@ -26,13 +28,19 @@ defmodule CandidateWebsite.Router do
     get("/", PageController, :index)
     get("/about", PageController, :about)
     get("/platform", PageController, :platform)
-    get("/press", PageController, :press)
+    get("/press", PageController, :info)
     get("/news", PageController, :press)
     get("/endorsements", PageController, :endorsements)
     get("/issues", PageController, :platform)
+    get("/info", PageController, :info)
+    # get("/volunteer", PageController, :get_volunteer)
+    get("/splash", PageController, :splash)
+    # get("/green-new-deal", PageController, :gnd)
+    # get("/gnd", PageController, :gnd)
 
     post("/signup", PageController, :signup)
     post("/volunteer", PageController, :volunteer)
+    post("/splash_form", PageController, :splash_form)
 
     get("/petition/:slug", PetitionController, :get)
     post("/petition/:slug", PetitionController, :post)

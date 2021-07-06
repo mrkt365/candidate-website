@@ -1,44 +1,27 @@
-<%
-  color =
-    cond do
-      @mobile -> @primary_color
-      assigns[:hero_text_color] -> assigns[:hero_text_color]
-      true -> "white"
-    end
-%>
-
-<%
-  for_text =
-    cond do
-      assigns[:before_for_congress] -> "#{assigns[:before_for_congress]} For #{congress_or_senate(@district)}"
-      true -> "For #{congress_or_senate(@district)}"
-    end
-%>
-
 <% join_message = assigns[:signup_prompt] || "Join my Campaign" %>
 
-<div id="hero-signup" style="color: <%= color %>;">
+<div id="hero-signup">
   <div id="join">
     <form method="POST" action="/signup?candidate=<%= @candidate %>">
       <input type="hidden" name="_csrf_token" value="<%= csrf_token() %>" />
       <fieldset>
         <div id="join-prompt"> <%= join_message %> </div>
-        <div id="join-subtitle"> For info and updates </div>
+        <div id="join-subtitle"> <%= gettext "For info and updates" %> </div>
         <div class="form-row">
-            <input type="text" name="name" placeholder="Name*" required="required" />
+            <input type="text" name="name" placeholder="<%= gettext "Name" %>*" required="required" />
         </div>
         <div class="form-row">
-            <input type="email" name="email" placeholder="Email*" required="required" />
+            <input type="email" name="email" placeholder="<%= gettext "Email" %>*" required="required" />
         </div>
         <div class="form-row">
           <div class="same-row">
-            <input type="tel" name="phone" placeholder="Phone" />
-            <input type="text" name="zip" placeholder="Zip" />
+            <input type="tel" name="phone" placeholder="<%= gettext "Phone" %>*" required="required" />
+            <input type="text" name="zip" placeholder="<%= gettext "Zip" %>" />
           </div>
         </div>
         <div class="form-row">
           <div class="same-row">
-            <input id="join-submit" type="submit" style=" background-color: <%= assigns[:join_button_color] %>; border: none;" class="button" value="JOIN ME" />
+            <input id="join-submit" type="submit" style=" background-color: <%= assigns[:join_button_color] %>; border: none;" class="button" value="<%= gettext "JOIN ME" %>" />
           </div>
         </div>
       </fieldset>

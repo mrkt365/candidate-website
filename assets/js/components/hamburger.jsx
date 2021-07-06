@@ -75,9 +75,12 @@ const styles = {
   },
 
   screen: {
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "rgba(0, 0, 0, .3)"
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, .3)",
+    position: "fixed",
+    left: 0,
+    zIndex: 10
   },
 
   menu: {
@@ -85,9 +88,9 @@ const styles = {
     height: "100vh",
     width: "66vw",
     right: 0,
-    backgroundColor: "black",
+    backgroundColor: "#3c2d82",
     padding: 20,
-    color: "white"
+    color: "white",
   },
 
   menuElement: {
@@ -113,6 +116,13 @@ const styles = {
   }
 };
 
+function render_and_scroll(path, chunk) {
+  if (window.location.pathname != path) {
+    window.location = path + chunk;
+  }
+  smoothScroll(document.querySelector(chunk));
+}
+
 const siteMap = [
   {
     text: "Contribute",
@@ -122,19 +132,12 @@ const siteMap = [
       color: "white"
     }
   },
-  {
-    text: "About",
-    action: () =>
-      window.aboutEnabled
-        ? (window.location.pathname = "/about")
-        : smoothScroll(document.querySelector("#why"))
-  },
+  { text: "About", action: () => (window.location.pathname = "/about") },
   { text: "Issues", action: () => (window.location.pathname = "/issues") },
-  {
-    text: "Events",
-    action: () => smoothScroll(document.querySelector("#events"))
-  },
-  { text: "News", action: () => smoothScroll(document.querySelector("#news")) },
+  { text: "Events", action: () => (window.location.pathname = "/events") },
+  { text: "News", action: () => (render_and_scroll("/", "#chunk-news")) },
+  { text: "Endorsements", action: () => (render_and_scroll("/", "#chunk-endorsements")) },
+  { text: "Store", action: () => (window.location.pathname = "/store") },
   {
     text: "Volunteer",
     action: () => smoothScroll(document.querySelector("#volunteer")),

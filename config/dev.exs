@@ -48,5 +48,6 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 config :candidate_website,
-  proxy_base_url: "http://localhost:3000/ak",
-  proxy_secret: "secret"
+  osdi_api_event_url: System.get_env("OSDI_API_EVENT_URL"),
+  osdi_api_token: System.get_env("OSDI_API_TOKEN"),
+  mycampaign_api_key: System.get_env("MYCAMPAIGN_API_KEY")

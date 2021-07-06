@@ -4,7 +4,7 @@ defmodule App.Mixfile do
   def project do
     [
       app: :candidate_website,
-      version: "0.1.10",
+      version: "0.1.13",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -41,7 +41,8 @@ defmodule App.Mixfile do
       {:html_sanitize_ex, "~> 1.3.0-rc3"},
       {:quantum, "~> 2.0.0"},
       {:actionkit, git: "https://github.com/justicedemocrats/actionkit_ex.git"},
-      {:httpotion, "~> 3.1.0"}
+      {:httpotion, "~> 3.1.0"},
+      {:cors_plug, "~> 1.5"}
     ]
   end
 

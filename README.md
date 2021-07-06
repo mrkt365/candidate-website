@@ -12,16 +12,18 @@ for your operating system.
 
 After that, assuming you've installed Git, run:
 ```
-git clone https://github.com/justicedemocrats/candidate-website.git
+git clone -b ocasio https://github.com/justicedemocrats/candidate-website.git
 cd candidate-website/
 mix deps.get
+
+cd assets
+npm install
+cd ..
+
 mix phx.server
 ```
 
-And then visit `http://localhost:4000/?candidate=alexandria-ocasio-cortez` in your
-browser.
-
-`?candidate=some-slug` is a required parameter.
+And then visit `http://localhost:4000/` in your browser.
 
 ## Making Changes
 
@@ -30,6 +32,3 @@ To make changes, modify the templates in `/lib/candidate_website/templates`, or 
 ## What's Happening
 
 This is a barebones Elixir/Phoenix app which fetches content from [CosmicJS](http://cosmicjs.com/), which is an API first CMS.
-
-
-

@@ -1,49 +1,8 @@
-<%
-host_event_url = cond do
-  String.contains?(@name, "Robb") or String.contains?(@name, "Marc") ->
-    nil
-  true ->
-    "https://jdems.us/host"
-end
-%>
+<script type="text/javascript" src="https://assets.targetedaction.net/embed.js"/> </script>
+<div style="max-height: 80vh; overflow-y: scroll;" class="oa-page-embed" data-page-url="https://secure.ngpvan.com/p/CkmJY_I-f0OyqL79IdqFHg2"/> </div>
 
-<%
-host_event_base = if String.contains?(@name, "Robb") or String.contains?(@name, "Marc"),
-  do: "https://now.brandnewcongress.org/events/",
-else: "https://now.justicedemocrats.com/events/"
-%>
-
-<div class="full-center" id="events">
-  <h1 style="color: <%= @primary_color %>; font-family: 'Montserrat'; font-weight: lighter; text-align: center;">
-    <%= if length(@events) > 0 do %>
-      Attend an Upcoming Event
-    <% else %>
-      We Need You to Power this Revolution
-    <% end %>
-  </h1>
-
-  <div class="event-box">
-    <%= for ev <- @events do %>
-      <div class="event" onclick="window.open('<%= ev["browser_url"] %>')">
-        <a href="<%= ev["browser_url"] %>" class="button" style="background-color: <%= @highlight_color %>">
-          RSVP
-        </a>
-        <div class="box">
-          <p><strong> <%= ev["title"] %> </strong> <br/>
-           <%= ev["date_line"] %> </p>
-        </div>
-      </div>
-    <% end %>
-  </div>
-
-  <%= if host_event_url != nil do %>
-    <a href="<%= host_event_url %>"
-      class="button"
-      style="color: white; background-color: <%= @highlight_color %>;
-        text-align: center; margin-left: auto; margin-right: auto;
-        margin-top: 50px;
-      " >
-      Host An Event for <%= @name %>
-    </a>
-  <% end %>
-</div>
+<style>
+form.oa-hooked {
+  display: none;
+}
+</style>

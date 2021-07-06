@@ -14,6 +14,7 @@ const autoprefixer = require("autoprefixer");
 module.exports = (env) => {
   const isDev = !(process.env.MIX_ENV && process.env.MIX_ENV == 'prod');
   const devtool = isDev ? "eval" : "source-map";
+  const publicPath = 'http://localhost:8080/';
 
   console.log(isDev)
 
@@ -32,7 +33,7 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, "../priv/static"),
       filename: 'js/[name].js',
-      publicPath: 'http://localhost:8080/'
+      publicPath: publicPath
     },
 
     devServer: {
@@ -80,8 +81,12 @@ module.exports = (env) => {
         {
           test: /\.(ttf|woff2?|eot|svg)$/,
           exclude: /node_modules/,
-          query: { name: "fonts/[hash].[ext]" },
-          loader: "file-loader",
+          options: {
+            name: "[name].[ext]",
+            publicPath: isDev ? publicPath : '/',
+            outputPath: 'fonts/'
+          },
+          loader: "file-loader"
         },
 
         {

@@ -4,18 +4,24 @@ defmodule CandidateWebsite.PageController do
   plug(CandidateWebsite.RequirePlug)
 
   def index(conn, _params) do
-    assigns = Map.get(conn.assigns, :data)
-    render(conn, "index.html", Enum.into(assigns, []))
+    if Map.has_key?(conn.cookies, "returning_visitor") do
+      assigns = Map.get(conn.assigns, :data)
+      render(conn, "index.html", Enum.into(assigns, []))
+    else
+      conn
+      |> put_resp_cookie("returning_visitor", "true", max_age: 15 * 86400)
+      |> redirect(to: "/splash")
+    end
   end
 
   def about(conn, _params) do
     %{enabled: %{about: about_enabled}, data: assigns} = Map.take(conn.assigns, [:data, :enabled])
 
-    if about_enabled do
-      render(conn, "about.html", Enum.into(assigns, []))
-    else
-      redirect(conn, to: "/#about")
-    end
+    # if about_enabled do
+    render(conn, "about.html", Enum.into(assigns, []))
+    # else
+    #   redirect(conn, to: "/#about")
+    # end
   end
 
   def platform(conn, _params) do
@@ -33,53 +39,43 @@ defmodule CandidateWebsite.PageController do
     render(conn, "endorsements.html", Enum.into(assigns, []))
   end
 
+  def splash(conn, _params) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "splash.html", Enum.into(assigns, []))
+  end
+
+  def green_new_deal(conn, _params) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "green_new_deal_temp.html", Enum.into(assigns |> Map.merge(%{title: "A Green New Deal | Alexandria Ocasio-Cortez"}), []))
+  end
+
+  def gnd(conn, _) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "green_new_deal.html", Enum.into(assigns |> Map.merge(%{title: "A Green New Deal | Alexandria Ocasio-Cortez", intro_paragraph: "A plan to develop a detailed national, industrial, economic mobilization plan for the transition of the United States economy to become carbon neutral, to significantly draw down and capture greenhouse gases from the atmosphere and oceans, and to promote economic and environmental justice and equality."}), []))
+  end
+
   def signup(conn, params) do
     data = %{name: candidate_name, donate_url: donate_url} = Map.get(conn.assigns, :data)
-    ~m(email zip name) = params
+    ~m(email zip) = params
 
     extra = if Map.has_key?(params, "phone"), do: %{phone: params["phone"]}, else: %{}
+    name = if Map.has_key?(params, "name"), do: params["name"], else: ""
 
-    [given_name, family_name] =
+    [first_name, last_name] =
       case String.split(name, " ") do
         [g, f] -> [g, f]
         [g] -> [g, nil]
         more -> [List.first(more), List.last(more)]
       end
 
-    case data do
-      %{action_network_api_key: action_network_api_key} when not is_nil(action_network_api_key) ->
-        HTTPotion.post(
-          "https://actionnetwork.org/api/v2/people",
-          headers: [
-            Accept: "application/hal+json",
-            "Content-Type": "application/json",
-            "OSDI-API-Token": action_network_api_key
-          ],
-          body:
-            Poison.encode!(%{
-              "person" => %{
-                "given_name" => given_name,
-                "family_name" => family_name,
-                "email_addresses" => [
-                  %{"address" => email}
-                ],
-                "postal_addresses" => [
-                  %{
-                    "postal_code" => zip,
-                    "primary" => true
-                  }
-                ],
-                "custom_fields" => %{
-                  "Mobile Phone" => params["phone"]
-                }
-              },
-              "add_tags" => ["website-signup"]
-            })
-        )
+    resp =
+      MyCampaign.find_or_create_person(
+        ~m(first_name last_name email zip)
+        |> Map.merge(%{"phone" => params["phone"]})
+      )
 
-      _ ->
-        Ak.Signup.process_signup(candidate_name, Map.merge(~m(email zip name), extra))
-    end
+    ~m(vanId) = Poison.decode!(resp.body)
+    MyCampaign.add_activist_codes(vanId, ["website"])
 
     redirect(conn, external: donate_url)
   end
@@ -87,18 +83,12 @@ defmodule CandidateWebsite.PageController do
   def volunteer(conn, params) do
     cand_data = %{name: candidate_name, donate_url: donate_url} = Map.get(conn.assigns, :data)
 
-    data =
+    activist_codes =
       Map.keys(params)
       |> MapSet.new()
-      |> MapSet.difference(MapSet.new(~w(email name phone zip _csrf_token)))
+      |> MapSet.difference(MapSet.new(~w(email name phone zip _csrf_token candidate)))
       |> MapSet.to_list()
-      |> Enum.reduce(params, fn checkbox, acc ->
-        if params[checkbox] do
-          Map.put(acc, "action_" <> checkbox, true)
-        else
-          Map.put(acc, "action_" <> checkbox, false)
-        end
-      end)
+      |> Enum.filter(fn checkbox -> Map.has_key?(params, checkbox) end)
 
     extra = if params["ref"], do: %{source: params["ref"]}, else: %{}
 
@@ -106,63 +96,35 @@ defmodule CandidateWebsite.PageController do
       String.contains?(title, "Volunteer") and String.contains?(title, candidate_name)
     end
 
-    [given_name, family_name] =
+    [first_name, last_name] =
       case String.split(params["name"], " ") do
         [g, f] -> [g, f]
         [g] -> [g, nil]
         more -> [List.first(more), List.last(more)]
       end
 
-    case cand_data do
-      %{action_network_api_key: action_network_api_key} when not is_nil(action_network_api_key) ->
-        HTTPotion.post(
-          "https://actionnetwork.org/api/v2/people",
-          headers: [
-            Accept: "application/hal+json",
-            "Content-Type": "application/json",
-            "OSDI-API-Token": action_network_api_key
-          ],
-          body:
-            Poison.encode!(%{
-              "person" => %{
-                "given_name" => given_name,
-                "family_name" => family_name,
-                "email_addresses" => [
-                  %{"address" => params["email"]}
-                ],
-                "custom_fields" => %{
-                  "Mobile Phone" => params["phone"]
-                },
-                "postal_addresses" => [
-                  %{
-                    "postal_code" => params["zip"],
-                    "primary" => true
-                  }
-                ]
-              },
-              "add_tags" =>
-                Enum.concat(
-                  ["website-volunteer"],
-                  Map.keys(data)
-                  |> Enum.filter(&String.starts_with?(&1, "action_"))
-                  |> Enum.map(&String.replace(&1, "action_", ""))
-                  |> Enum.map(&"Help: #{nice_tag(&1)}")
-                )
-            })
-        )
-
-      _ ->
-        Ak.Signup.process_signup(matcher, Map.merge(data, extra))
-    end
+    resp = MyCampaign.find_or_create_person(~m(first_name last_name) |> Map.merge(params))
+    ~m(vanId) = Poison.decode!(resp.body)
+    MyCampaign.add_activist_codes(vanId, activist_codes |> Enum.concat(["website"]), true)
 
     destination =
       case candidate_name do
         "Robb" <> _ -> "https://now.brandnewcongress.org/act"
         "Marc Whit" <> _ -> "https://now.brandnewcongress.org/act"
-        _ -> "https://now.justicedemocrats.com/act"
+        _ -> "https://www.ocasio2018.com/events"
       end
 
     redirect(conn, external: destination)
+  end
+
+  def info(conn, _) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "info.html", assigns)
+  end
+
+  def get_volunteer(conn, _) do
+    assigns = Map.get(conn.assigns, :data)
+    render(conn, "volunteer.html", assigns)
   end
 
   def nice_tag(tag) do
@@ -170,5 +132,19 @@ defmodule CandidateWebsite.PageController do
     |> String.split("_")
     |> Enum.map(&String.capitalize/1)
     |> Enum.join(" ")
+  end
+
+  def splash_form(conn, params) do
+    activist_codes =
+      Map.keys(params)
+      |> MapSet.new()
+      |> MapSet.difference(MapSet.new(~w(email phone _csrf_token candidate)))
+      |> MapSet.to_list()
+
+    resp = MyCampaign.find_or_create_on_email(params)
+    ~m(vanId) = Poison.decode!(resp.body)
+    MyCampaign.add_activist_codes(vanId, activist_codes |> Enum.concat(["website"]), false)
+
+    redirect(conn, to: "/")
   end
 end

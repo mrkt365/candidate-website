@@ -1,15 +1,20 @@
-<div id="why-support-text">
-  <div id="why-support-header">
-    <h1 id="why-support-header-text"><%= @why_support_header %></h1>
-  </div>
-  <div id="why-support-body">
-    <%= raw(@why_support_body) %>
-  </div>
-  <div id="why-support-learn-more">
-    <div id="why-support-cta">
-      Learn More about Alexandria
+<div id="why-support-wrapper">
+  <div id="why-support-text">
+    <div id="why-support-header">
+      <h1 id="why-support-header-text">
+        <%= @why_support_header %>
+      </h1>
+    </div>
+    <div id="why-support-body">
+      <%= raw(@why_support_body) %>
+    </div>
+    <div id="why-support-learn-more">
+      <div id="why-support-cta">
+        <a href="/about" id="why-support-link" onClick"window.location.pathname=/about">Learn More about Alexandria</a>
+      </div>
     </div>
   </div>
-</div>
-<div id="why-support-image">
+  <div id="why-support-image">
+    <img id="why-support-image-actual" src="https://cosmic-s3.imgix.net/80962870-8202-11e8-8ae4-250d9c13bec7-ZsIujw4%20(1).jpg"/>
+  </div>
 </div>
